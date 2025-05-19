@@ -1,10 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:rtm/Screens/ActivitiesScreen.dart';
-import 'package:rtm/Screens/AddVisitScreen.dart';
-import 'package:rtm/Screens/CustomersScreen.dart';
-import 'package:rtm/Screens/VisitsScreen.dart';
+import 'package:flutter/services.dart';
+import 'package:rtm/Screens/HomePage.dart';
+import 'package:rtm/Screens/SignInScreen.dart';
+import 'package:rtm/Screens/SignUpScreen.dart';
+import 'package:rtm/flutter_native_splash.dart';
+import 'package:rtm/Services/auth_service.dart';
+import 'package:rtm/Screens/RepHomePage.dart';
+import 'package:rtm/Screens/ManagerHomePage.dart';
+import 'package:rtm/Screens/SplashScreen.dart';
+import 'theme.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Set system UI overlay style to match your splash screen
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
+
+
+
   runApp(const MyApp());
 }
 
@@ -15,72 +38,79 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Customer Visit Tracker',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const HomePage(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.light,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/auth_wrapper': (context) => const AuthWrapper(),
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(),
+        '/rep_home': (context) => const RepHomePage(),
+        '/manager_home': (context) => const ManagerHomePage(),
+      },
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _AuthWrapperState createState() => _AuthWrapperState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-  final List<Widget> _screens = [
-    const VisitsScreen(),
-    const CustomersScreen(),
-    const ActivitiesScreen(),
-  ];
+class _AuthWrapperState extends State<AuthWrapper> {
+  final AuthService _authService = AuthService();
+  bool _isLoading = true;
+  bool _isSignedIn = false;
+  String _userRole = '';
 
-  void _onItemTapped(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    final isSignedIn = await _authService.isSignedIn();
+    String userRole = '';
+
+    if (isSignedIn) {
+      final user = await _authService.getCurrentUser();
+      if (user != null) {
+        userRole = user.role;
+      }
+    }
+
     setState(() {
-      _selectedIndex = index;
+      _isSignedIn = isSignedIn;
+      _userRole = userRole;
+      _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Customer Visit Tracker'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddVisitScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Visits',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Customers',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.checklist),
-            label: 'Activities',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    );
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_isSignedIn) {
+      // Navigate based on user role
+      if (_userRole == 'manager') {
+        return const ManagerHomePage();
+      } else {
+        return const RepHomePage();
+      }
+    } else {
+      return const SignInScreen();
+    }
   }
 }

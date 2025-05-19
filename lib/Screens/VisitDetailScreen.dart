@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:rtm/Model/Visit.dart';
 import 'package:rtm/Screens/EditVisitScreen.dart';
+import 'package:rtm/Model/User.dart'; // import your User model
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class VisitDetailScreen extends StatelessWidget {
+class VisitDetailScreen extends StatefulWidget {
   final Visit visit;
   final String customerName;
   final Map<String, String> activityDescriptions;
@@ -17,35 +19,73 @@ class VisitDetailScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    // Format dates
-    final visitDate = DateFormat('MMMM d, yyyy').format(visit.visitDate);
-    final visitTime = DateFormat('h:mm a').format(visit.visitDate);
+  State<VisitDetailScreen> createState() => _VisitDetailScreenState();
+}
 
-    // Get activities
+class _VisitDetailScreenState extends State<VisitDetailScreen> {
+  String? userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final user = await getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userRole = user.role.toLowerCase();
+      });
+    }
+  }
+
+  Future<User?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userData = prefs.getString("user_data");
+
+    if (userData != null) {
+      return User.fromJson(jsonDecode(userData));
+    }
+
+    return null;
+  }
+  @override
+  Widget build(BuildContext context) {
+    final visitDate = DateFormat('MMMM d, yyyy').format(widget.visit.visitDate);
+    final visitTime = DateFormat('h:mm a').format(widget.visit.visitDate);
+
     List<String> activities = [];
-    for (var activityId in visit.activitiesDone) {
-      final description = activityDescriptions[activityId];
+    for (var activityId in widget.visit.activitiesDone) {
+      final description = widget.activityDescriptions[activityId];
       if (description != null) {
         activities.add(description);
       }
     }
 
+    if (userRole == null) {
+      // Still loading user role
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Visit Details'),
+        title: const Text('Visit Details'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditVisitScreen(visit: visit),
-                ),
-              );
-            },
-          ),
+          if (userRole != 'manager') // Only allow non-managers to edit
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditVisitScreen(visit: widget.visit),
+                  ),
+                );
+              },
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -63,21 +103,21 @@ class VisitDetailScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          customerName,
+                          widget.customerName,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Chip(
-                          label: Text(visit.status),
-                          backgroundColor: visit.status.toLowerCase() == 'completed'
+                          label: Text(widget.visit.status),
+                          backgroundColor: widget.visit.status.toLowerCase() == 'completed'
                               ? Colors.green[100]
-                              : visit.status.toLowerCase() == 'cancelled'
+                              : widget.visit.status.toLowerCase() == 'cancelled'
                               ? Colors.red
                               : Colors.orange[100],
                           labelStyle: TextStyle(
-                            color: visit.status.toLowerCase() == 'cancelled'
+                            color: widget.visit.status.toLowerCase() == 'cancelled'
                                 ? Colors.white
                                 : Colors.black,
                           ),
@@ -89,9 +129,9 @@ class VisitDetailScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     _buildInfoRow(Icons.calendar_today, 'Date', visitDate),
                     _buildInfoRow(Icons.access_time, 'Time', visitTime),
-                    _buildInfoRow(Icons.location_on, 'Location', visit.location),
-                    if (visit.notes != null && visit.notes!.isNotEmpty)
-                      _buildInfoRow(Icons.notes, 'Notes', visit.notes!),
+                    _buildInfoRow(Icons.location_on, 'Location', widget.visit.location),
+                    if (widget.visit.notes != null && widget.visit.notes!.isNotEmpty)
+                      _buildInfoRow(Icons.notes, 'Notes', widget.visit.notes!),
                   ],
                 ),
               ),

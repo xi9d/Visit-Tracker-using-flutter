@@ -34,12 +34,14 @@ class Visit {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'customer_id': customerId,
       'visit_date': visitDate.toIso8601String(),
       'location': location,
       'status': status,
       'notes': notes,
       'activities_done': activitiesDone,
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }

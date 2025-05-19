@@ -32,6 +32,9 @@ dependencies:
     sdk: flutter
   intl: ^0.18.0
   http: ^1.1.0
+  shared_preferences: ^2.0.15
+  fl_chart: ^1.0.0
+  flutter_native_splash: ^2.3.10
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -50,7 +53,11 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
+flutter_native_splash:
+  color: "#0277BD"
+  #image: assets/logo.png
+  android: true
+  ios: true
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -89,3 +96,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+fonts:
+  - family: Poppins
+    fonts:
+      - asset: assets/fonts/Poppins-Regular.ttf
+      - asset: assets/fonts/Poppins-Bold.ttf
+        weight: 700

@@ -18,7 +18,6 @@ class _EditVisitScreenState extends State<EditVisitScreen> {
   final _formKey = GlobalKey<FormState>();
   late Future<List<Customer>> futureCustomers;
   late Future<List<Activity>> futureActivities;
-
   late int selectedCustomerId;
   late DateTime selectedDate;
   late TimeOfDay selectedTime;
@@ -26,10 +25,8 @@ class _EditVisitScreenState extends State<EditVisitScreen> {
   late String status;
   late String notes;
   late List<String> selectedActivities;
-
   List<Customer> customers = [];
   List<Activity> activities = [];
-
   final List<String> statusOptions = ['Pending', 'Completed', 'Cancelled'];
 
   @override
@@ -101,37 +98,47 @@ class _EditVisitScreenState extends State<EditVisitScreen> {
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    Future<void> _submitForm() async {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
 
-      // Combine date and time
-      final visitDate = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        selectedTime.hour,
-        selectedTime.minute,
-      );
+        try {
+          // Combine date and time
+          final visitDate = DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            selectedTime.hour,
+            selectedTime.minute,
+          );
 
-      // Create updated visit object
-      final updatedVisit = Visit(
-        id: widget.visit.id,
-        customerId: selectedCustomerId,
-        visitDate: visitDate,
-        location: location,
-        status: status,
-        notes: notes.isEmpty ? null : notes,
-        activitiesDone: selectedActivities,
-        createdAt: widget.visit.createdAt,
-      );
+          // Create updated visit object
+          final updatedVisit = Visit(
+            id: widget.visit.id,
+            customerId: selectedCustomerId,
+            visitDate: visitDate,
+            location: location,
+            status: status,
+            notes: notes.isEmpty ? null : notes,
+            activitiesDone: selectedActivities,
+            createdAt: widget.visit.createdAt,
+          );
 
-      try {
-        await ApiService.updateVisit(widget.visit.id, updatedVisit);
-        Navigator.pop(context, true);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating visit: $e')),
-        );
+          // Print the data being sent for debugging
+          print('Sending update: ${updatedVisit.toJson()}');
+
+          final response = await ApiService.updateVisit(
+              widget.visit.id, updatedVisit);
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Visit updated successfully')),
+          );
+        } catch (e) {
+          print('Error details: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating visit: ${e.toString()}')),
+          );
+        }
       }
     }
   }
