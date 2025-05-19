@@ -294,26 +294,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
-
-              // Sign In Link (only show if not being created by manager)
-              if (!widget.isManagerCreating) ...[
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Already have an account?'),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SignInScreen()),
-                        );
-                      },
-                      child: const Text('Sign In'),
-                    ),
-                  ],
-                ),
-              ]
             ],
           ),
         ),

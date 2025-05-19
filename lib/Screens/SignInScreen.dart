@@ -295,7 +295,9 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
 
                       const SizedBox(height: 30),
 
-                      // Sign In Button with liquid-like background
+                      // Replace the Sign In Button code with this improved version that prevents shifting:
+
+// Sign In Button with liquid-like background
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         height: 55,
@@ -322,22 +324,25 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
+                            padding: EdgeInsets.zero, // Remove default padding
                           ),
-                          child: _isLoading
-                              ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                              : const Text(
-                            'SIGN IN',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+                          child: Center( // Center widget helps maintain alignment
+                            child: _isLoading
+                                ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                                : const Text(
+                              'SIGN IN',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
                             ),
                           ),
                         ),
