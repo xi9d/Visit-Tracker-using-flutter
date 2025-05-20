@@ -1,4 +1,4 @@
-# RTM – Real-To-Market App 📊
+# RTM – Route-To-Market App 📊
 
 ![RTM Banner](https://github.com/user-attachments/assets/b1605a34-b67a-4680-8e2c-4612ba8262a3)
 
