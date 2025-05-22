@@ -128,35 +128,6 @@ https://xi9d.pythonanywhere.com/api/customers/1      # Individual customer detai
 - **Password:** 123456
 - Access to customer visits, data entry, and personal metrics
 
-## 📁 Project Structure
-
-```
-lib/
-├── main.dart                 # Application entry point
-├── config/                   # App configuration & themes
-├── models/                   # Data models
-│   ├── user.dart             # User model
-│   ├── customer.dart         # Customer model
-│   ├── visit.dart            # Visit data model
-│   └── activity.dart         # Activity tracking model
-├── screens/                  # UI screens
-│   ├── auth/                 # Authentication screens
-│   ├── manager/              # Manager-specific screens
-│   └── rep/                  # Representative-specific screens
-├── services/                 # Business logic & API services
-│   ├── auth_service.dart     # Authentication logic
-│   ├── api_service.dart      # API communication
-│   └── storage_service.dart  # Local storage service
-├── utils/                    # Utility functions
-└── widgets/                  # Reusable UI components
-    ├── animations/           # Custom animations
-    ├── charts/               # Data visualization
-    └── common/               # Shared components
-```
-
-## 🔧 Configuration
-
-Edit the `.env` file in the project root to configure environment-specific settings:
 
 ```
 API_BASE_URL=https://xi9d.pythonanywhere.com
